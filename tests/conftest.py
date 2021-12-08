@@ -68,7 +68,11 @@ def dbsession(pyramid_oereb_test_config):
     db_url = pyramid_oereb_test_config.get('app_schema').get('db_connection')
     engine = create_engine(db_url)
     session = orm.sessionmaker(bind=engine)()
-    with patch('pyramid_oereb.core.adapter.DatabaseAdapter.get_session', return_value=session):
+    with patch(
+        'pyramid_oereb.core.adapter.DatabaseAdapter.get_session', return_value=session
+    ), patch.object(
+        session, "close"
+    ):
         yield session
 
     # session = DatabaseAdapter().get_session(db_url)

@@ -17,7 +17,9 @@ def test_data(dbsession, transact):
     }
     dbsession.add_all(addresses.values())
     dbsession.flush()
-    yield
+    yield {
+        "addresses": addresses,
+    }
 
 
 # @pytest.mark.run(order=2)
@@ -32,16 +34,20 @@ def test_init(pyramid_oereb_test_config):
 
 
 # @pytest.mark.run(order=2)
-# @pytest.mark.parametrize("param,length", [
-#     ({'street_name': u'test', 'street_number': u'10', 'zip_code': 4410}, 1),
-#     # ({'street_name': u'test', 'street_number': u'11', 'zip_code': 4410}, 0)
-# ])
-def test_read(pyramid_oereb_test_config, test_data):
+@pytest.mark.parametrize("param,length", [
+    ({'street_name': u'test', 'street_number': u'10', 'zip_code': 4410}, 1),
+    ({'street_name': u'test', 'street_number': u'11', 'zip_code': 4410}, 0)
+])
+def test_read(pyramid_oereb_test_config, test_data, param, length):
     from pyramid_oereb.core.readers.address import AddressReader
 
     del test_data
-    param = {'street_name': u'test', 'street_number': u'10', 'zip_code': 4410}
-    length = 1
+
+    import debugpy
+    debugpy.listen(5678)
+    debugpy.wait_for_client()
+    debugpy.breakpoint()
+
     reader = AddressReader(
         pyramid_oereb_test_config.get_address_config().get('source').get('class'),
         **pyramid_oereb_test_config.get_address_config().get('source').get('params')
